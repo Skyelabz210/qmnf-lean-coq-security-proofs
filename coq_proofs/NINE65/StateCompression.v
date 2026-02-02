@@ -160,15 +160,53 @@ Theorem product_compression : forall n : nat,
 Proof.
   intros n Hn.
   unfold product_storage, skm_traditional_storage.
-  (* n * 32 < 2^n * 16 for n >= 6 *)
-  (* Equivalent: 2*n < 2^n for n >= 6 *)
-  (* This is a standard result: exponential dominates linear for n >= 3 *)
-  (* For n = 6: 12 < 64, gap = 52 *)
-  (* For n = 7: 14 < 128, gap = 114 *)
-  (* Gap doubles minus 2 each step: gap(n+1) = 2*gap(n) - 2 *)
-  (* Proof requires careful handling of 2^n which lia/nia can't do symbolically *)
-  (* NOTE: The math is straightforward: 2^n grows as O(2^n) while n*32 grows as O(n) *)
-Admitted.
+  (* Goal: n * 32 < 2^n * 16 *)
+  (* Equivalent: n * 2 < 2^n (divide both sides by 16) *)
+  (* We use the lemma two_n_le_pow2_n which shows 2*n <= 2^n for n >= 3 *)
+  (* For n >= 6, we have strict inequality *)
+
+  (* First show 2*n < 2^n for n >= 6 *)
+  assert (H2n : 2 * n < 2^n).
+  {
+    (* For n >= 6, 2*n < 2^n because 2^n grows much faster *)
+    (* Base case: n = 6: 12 < 64 *)
+    (* Inductive: if 2*k < 2^k for k >= 6, then 2*(k+1) = 2*k + 2 < 2^k + 2 *)
+    (*            and 2^(k+1) = 2 * 2^k, so we need 2^k + 2 <= 2 * 2^k *)
+    (*            i.e., 2 <= 2^k, which is true for k >= 1 *)
+    induction n as [|k IHk].
+    - lia.
+    - destruct (Nat.eq_dec k 5) as [Heq|Hneq].
+      + (* k = 5, so n = 6 *)
+        subst k. simpl. lia. (* 12 < 64 *)
+      + (* k >= 6 *)
+        assert (Hk : k >= 6) by lia.
+        specialize (IHk Hk).
+        (* 2 * S k = 2 * k + 2 *)
+        (* 2^(S k) = 2 * 2^k *)
+        (* Need: 2*k + 2 < 2 * 2^k *)
+        (* From IHk: 2*k < 2^k, so 2*2*k < 2*2^k *)
+        (* We need 2*k + 2 < 2*2^k *)
+        (* Since 2*k >= 12 (as k >= 6), we have 2*k + 2 <= 2*k + 2*k = 4*k < 2*2^k *)
+        (* Actually simpler: 2*k + 2 < 2^k + 2^k = 2*2^k when 2*k + 2 < 2^k + 2^k *)
+        (* i.e., 2*k + 2 < 2^(k+1), which we need 2*k < 2^k and 2 < 2^k *)
+        (* 2 < 2^k for k >= 2, and from IHk, 2*k < 2^k *)
+        (* So 2*k + 2 < 2^k + 2^k = 2^(k+1) *)
+        simpl (2 ^ S k).
+        assert (H2k : 2 < 2^k).
+        {
+          assert (H2_6 : 2^6 = 64) by reflexivity.
+          assert (Hpow_mono : 2^k >= 2^6) by (apply Nat.pow_le_mono_r; lia).
+          lia.
+        }
+        lia.
+  }
+
+  (* Now from 2*n < 2^n, derive n*32 < 2^n * 16 *)
+  (* n * 32 = n * 2 * 16 = 2*n * 16 *)
+  (* 2^n * 16 *)
+  (* We need 2*n * 16 < 2^n * 16, which follows from 2*n < 2^n *)
+  nia.
+Qed.
 
 (** * Compression Ratios *)
 

@@ -168,48 +168,142 @@ Qed.
 Axiom fermat_euler : forall a N : nat,
   N > 1 -> coprime a N -> Nat.pow a (N - 1) mod N = 1.
 
+(** Helper lemma: modular multiplication *)
+Lemma mod_mul : forall a b N : nat,
+  N > 0 -> (a mod N * b) mod N = (a * b) mod N.
+Proof.
+  intros a b N HN.
+  rewrite Nat.mul_mod_idemp_l by lia.
+  reflexivity.
+Qed.
+
+(** Helper lemma: modular multiplication, symmetric version *)
+Lemma mod_mul_r : forall a b N : nat,
+  N > 0 -> (a * (b mod N)) mod N = (a * b) mod N.
+Proof.
+  intros a b N HN.
+  rewrite Nat.mul_mod_idemp_r by lia.
+  reflexivity.
+Qed.
+
+(** Helper lemma: power of mod *)
+Lemma pow_mod : forall a k N : nat,
+  N > 0 -> Nat.pow (a mod N) k mod N = Nat.pow a k mod N.
+Proof.
+  intros a k N HN.
+  symmetry.
+  apply pow_mod_distribute.
+  exact HN.
+Qed.
+
+(** Helper lemma: a^x * a^y = a^(x+y) mod N *)
+Lemma pow_add_mod : forall a x y N : nat,
+  N > 0 -> (Nat.pow a x * Nat.pow a y) mod N = Nat.pow a (x + y) mod N.
+Proof.
+  intros a x y N HN.
+  rewrite pow_add_r.
+  reflexivity.
+Qed.
+
+(** Helper lemma: (a^x)^y = a^(x*y) mod N *)
+Lemma pow_mul_mod : forall a x y N : nat,
+  N > 0 -> Nat.pow (Nat.pow a x) y mod N = Nat.pow a (x * y) mod N.
+Proof.
+  intros a x y N HN.
+  rewrite pow_mul_r.
+  reflexivity.
+Qed.
+
 (** BSGS correctness: if collision found, it gives a multiple of the order *)
 Theorem bsgs_correctness : forall a N m j k : nat,
-  N > 1 -> coprime a N -> m > 0 ->
+  N > 1 -> coprime a N -> m > 0 -> m <= N - 1 ->
   baby_step a N j = giant_step a N m k (Nat.pow a (N - 1 - m) mod N) ->
   (* a^j = a^(-m*k) mod N means a^(j + m*k) = 1 mod N *)
   Nat.pow a (j + m * k) mod N = 1.
 Proof.
-  intros a N m j k HN Hcop Hm Hcollision.
+  intros a N m j k HN Hcop Hm Hm_bound Hcollision.
   unfold baby_step, giant_step in Hcollision.
-  (**
-     The collision gives us:
-       a^j mod N = (a^(N-1-m) mod N)^k mod N
 
-     By Fermat-Euler, a^(N-1) = 1 mod N.
-     Thus a^(N-1-m) * a^m = a^(N-1) = 1 mod N.
-     So a^(N-1-m) is the modular inverse of a^m.
-
-     The collision means: a^j = (a^(-m))^k = a^(-m*k) mod N
-     Therefore: a^j * a^(m*k) = 1 mod N
-     Which gives: a^(j + m*k) = 1 mod N
-  *)
-  (* Rewrite using pow distribution *)
-  rewrite pow_mod_distribute in Hcollision by lia.
-  (* The key insight: a^(N-1-m) is the inverse of a^m *)
-  (* We need: a^j * a^(m*k) = a^(j+m*k) = 1 mod N *)
-  (* This follows from the collision equality and Fermat-Euler *)
-
-  (* Using the collision: a^j = (a^(N-1-m))^k mod N *)
-  (* We have a^(N-1-m) * a^m = a^(N-1) = 1 mod N by Fermat-Euler *)
-  (* So (a^(N-1-m))^k * (a^m)^k = 1 mod N *)
-  (* From collision: a^j = (a^(N-1-m))^k mod N *)
-  (* Therefore: a^j * a^(m*k) = 1 mod N *)
-
-  (* Full proof requires modular multiplication properties *)
-  (* The mathematical argument above is sound; completing requires
-     additional lemmas about modular arithmetic multiplication *)
+  (* From Fermat-Euler: a^(N-1) mod N = 1 *)
   assert (Hfe : Nat.pow a (N - 1) mod N = 1) by (apply fermat_euler; assumption).
-  (* From here, algebraic manipulation gives the result *)
-  (* Completing this requires: (x mod N) * (y mod N) mod N = (x * y) mod N *)
-  (* and careful case analysis on the structure of the collision *)
-  admit.
-Admitted.
+
+  (* The collision states: a^j mod N = (a^(N-1-m) mod N)^k mod N *)
+  (* First, simplify RHS: (a^(N-1-m) mod N)^k mod N = a^((N-1-m)*k) mod N *)
+  assert (Hrhs : Nat.pow (Nat.pow a (N - 1 - m) mod N) k mod N = Nat.pow a ((N - 1 - m) * k) mod N).
+  {
+    rewrite pow_mod by lia.
+    rewrite pow_mul_mod by lia.
+    reflexivity.
+  }
+  rewrite Hrhs in Hcollision.
+
+  (* So the collision is: a^j mod N = a^((N-1-m)*k) mod N *)
+
+  (* Key insight: a^j * a^(m*k) mod N = a^((N-1-m)*k) * a^(m*k) mod N *)
+  (* And a^((N-1-m)*k) * a^(m*k) = a^((N-1-m)*k + m*k) = a^((N-1)*k) *)
+
+  (* We need to show: a^(j + m*k) mod N = 1 *)
+
+  (* Strategy: We'll use that a^(j+m*k) mod N = a^((N-1-m)*k + m*k) mod N *)
+  (*           = a^((N-1)*k) mod N = (a^(N-1))^k mod N = 1^k mod N = 1 *)
+
+  (* But we need to connect a^j to a^((N-1-m)*k) *)
+  (* The collision tells us they're congruent mod N *)
+
+  (* From a^j mod N = a^((N-1-m)*k) mod N, we have: *)
+  (* a^(j + m*k) mod N = (a^j * a^(m*k)) mod N *)
+  (*                   = (a^j mod N * a^(m*k) mod N) mod N *)
+  (*                   = (a^((N-1-m)*k) mod N * a^(m*k) mod N) mod N *)
+  (*                   = (a^((N-1-m)*k) * a^(m*k)) mod N *)
+  (*                   = a^((N-1-m)*k + m*k) mod N *)
+  (*                   = a^((N-1)*k) mod N *)
+  (*                   = (a^(N-1))^k mod N *)
+  (*                   = 1^k mod N = 1 *)
+
+  (* Step 1: Rewrite a^(j + m*k) using modular arithmetic *)
+  rewrite <- pow_add_mod by lia.
+
+  (* Step 2: Use the collision to replace a^j mod N with a^((N-1-m)*k) mod N *)
+  rewrite Nat.mul_mod by lia.
+  rewrite Hcollision.
+  rewrite <- Nat.mul_mod by lia.
+
+  (* Now goal is: (a^((N-1-m)*k) * a^(m*k)) mod N = 1 *)
+
+  (* Step 3: Combine the powers *)
+  rewrite <- pow_add_r.
+
+  (* Goal: a^((N-1-m)*k + m*k) mod N = 1 *)
+
+  (* Step 4: Simplify the exponent *)
+  (* (N-1-m)*k + m*k = ((N-1-m) + m)*k = (N-1)*k *)
+  replace ((N - 1 - m) * k + m * k) with ((N - 1) * k).
+  2: {
+    (* m <= N - 1 by hypothesis Hm_bound *)
+    (* (N-1-m)*k + m*k = (N-1-m+m)*k = (N-1)*k *)
+    (* Use distributivity: (a + b) * c = a*c + b*c, so a*c + b*c = (a+b)*c *)
+    rewrite <- Nat.mul_add_distr_r.
+    f_equal.
+    lia.
+  }
+
+  (* Goal: a^((N-1)*k) mod N = 1 *)
+
+  (* Step 5: Rewrite as (a^(N-1))^k *)
+  rewrite pow_mul_r.
+
+  (* Goal: (a^(N-1))^k mod N = 1 *)
+
+  (* Step 6: Use Fermat-Euler: a^(N-1) mod N = 1 *)
+  (* We need: (a^(N-1))^k mod N = (a^(N-1) mod N)^k mod N = 1^k mod N = 1 *)
+  rewrite <- pow_mod by lia.
+  rewrite Hfe.
+
+  (* Goal: 1^k mod N = 1 *)
+  rewrite Nat.pow_1_l.
+  apply Nat.mod_small.
+  lia.
+Qed.
 
 (** * Order Minimization *)
 
