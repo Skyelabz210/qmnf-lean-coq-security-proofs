@@ -1,0 +1,200 @@
+{
+  "schema_version": "2.0",
+  "title": "QMNF Security Proofs - Round 2: Lean + Coq + NIST",
+  "main_goal": "Complete all remaining proofs and add NIST compliance",
+  "context": "K-Elimination, Bootstrap-Free FHE, IND-CPA, ML-KEM alignment",
+  "created_at": "2026-02-02T16:00:00Z",
+  "round": 2,
+
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Coq Completion",
+      "description": "Complete remaining 11 Admitted statements",
+      "nodes": [
+        {
+          "id": "COQ-001",
+          "file": "coq_proofs/NINE65/PeriodGrover.v",
+          "admitted_count": 7,
+          "priority": "P1",
+          "theorems": [
+            "mod_pow_spec - binary exponentiation correctness",
+            "fermat_little - Fermat's little theorem",
+            "redc_bounds - Montgomery REDC bounds",
+            "redc_correct - REDC correctness with Bezout",
+            "mont_mul_correct - Montgomery multiplication",
+            "period_factorization - Shor period lemma",
+            "optimal_iterations_positive - Grover iteration bound"
+          ],
+          "difficulty": "hard",
+          "assigned_to": "pi-Prover"
+        },
+        {
+          "id": "COQ-002",
+          "file": "coq_proofs/NINE65/KElimination.v",
+          "admitted_count": 1,
+          "priority": "P0",
+          "theorems": ["k_elimination_sound - modular arithmetic soundness"],
+          "difficulty": "medium",
+          "assigned_to": "pi-Prover"
+        },
+        {
+          "id": "COQ-003",
+          "file": "coq_proofs/NINE65/OrderFinding.v",
+          "admitted_count": 1,
+          "priority": "P1",
+          "theorems": ["bsgs_correctness - BSGS algorithm correctness"],
+          "difficulty": "hard",
+          "assigned_to": "pi-Prover"
+        },
+        {
+          "id": "COQ-004",
+          "file": "coq_proofs/NINE65/CyclotomicPhase.v",
+          "admitted_count": 1,
+          "priority": "P2",
+          "theorems": ["distance_symmetric - modular distance symmetry"],
+          "difficulty": "medium",
+          "assigned_to": "pi-Prover"
+        },
+        {
+          "id": "COQ-005",
+          "file": "coq_proofs/NINE65/StateCompression.v",
+          "admitted_count": 1,
+          "priority": "P2",
+          "theorems": ["product_compression - exponential bound 2n < 2^n"],
+          "difficulty": "medium",
+          "assigned_to": "pi-Prover"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "NIST Security Proofs",
+      "description": "Add ML-KEM/FIPS-203 compliance and lattice security proofs",
+      "nodes": [
+        {
+          "id": "NIST-001",
+          "label": "ML-KEM Parameter Alignment",
+          "type": "definition",
+          "statement": "QMNF parameters align with ML-KEM-768/1024 security levels",
+          "file": "swarm_run/lean_project/SwarmProofs/NISTCompliance.lean",
+          "priority": "P0",
+          "difficulty": "medium",
+          "assigned_to": "sigma-Verifier"
+        },
+        {
+          "id": "NIST-002",
+          "label": "Ring-LWE to Module-LWE Reduction",
+          "type": "lemma",
+          "statement": "Security reduction from RLWE to MLWE (NIST basis)",
+          "file": "swarm_run/lean_project/SwarmProofs/NISTCompliance.lean",
+          "priority": "P1",
+          "difficulty": "hard",
+          "assigned_to": "pi-Prover"
+        },
+        {
+          "id": "NIST-003",
+          "label": "FIPS-203 Compliance Checklist",
+          "type": "verification",
+          "statement": "Verify QMNF-HE meets FIPS-203 requirements",
+          "file": "swarm_run/lean_project/SwarmProofs/NISTCompliance.lean",
+          "priority": "P1",
+          "difficulty": "medium",
+          "assigned_to": "kappa-Critic"
+        },
+        {
+          "id": "NIST-004",
+          "label": "Lattice Estimator Security Bound",
+          "type": "computation",
+          "statement": "Verify 128-bit security via lattice-estimator methodology",
+          "file": "swarm_run/jobs/mu_simulator/nist_security.py",
+          "priority": "P0",
+          "difficulty": "medium",
+          "assigned_to": "mu-Simulator"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Lean 4 Expansion",
+      "description": "Formalize remaining security theorems from blueprint",
+      "nodes": [
+        {
+          "id": "LEAN-001",
+          "label": "D001-D003: Ring and Distribution Definitions",
+          "type": "definition",
+          "statement": "Formalize R_q, discrete Gaussian, RLWE distribution in Lean 4",
+          "file": "swarm_run/lean_project/SwarmProofs/RingLWE.lean",
+          "priority": "P1",
+          "difficulty": "medium",
+          "assigned_to": "sigma-Verifier",
+          "dependencies": []
+        },
+        {
+          "id": "LEAN-002",
+          "label": "D006-D007: IND-CPA and QMNF-HE Definitions",
+          "type": "definition",
+          "statement": "Formalize IND-CPA game and QMNF-HE scheme",
+          "file": "swarm_run/lean_project/SwarmProofs/INDCPAGame.lean",
+          "priority": "P1",
+          "difficulty": "hard",
+          "assigned_to": "sigma-Verifier",
+          "dependencies": ["LEAN-001"]
+        },
+        {
+          "id": "LEAN-003",
+          "label": "L004-L006: Hybrid Game Lemmas",
+          "type": "lemma",
+          "statement": "Formalize RLWE indistinguishability and hybrid transitions",
+          "file": "swarm_run/lean_project/SwarmProofs/HybridGames.lean",
+          "priority": "P2",
+          "difficulty": "hard",
+          "assigned_to": "pi-Prover",
+          "dependencies": ["LEAN-001", "LEAN-002"]
+        },
+        {
+          "id": "LEAN-004",
+          "label": "L007: Noise Growth Bounds",
+          "type": "lemma",
+          "statement": "Formalize homomorphic operation noise growth",
+          "file": "swarm_run/lean_project/SwarmProofs/NoiseGrowth.lean",
+          "priority": "P1",
+          "difficulty": "medium",
+          "assigned_to": "pi-Prover",
+          "dependencies": ["LEAN-002"]
+        },
+        {
+          "id": "LEAN-005",
+          "label": "T003: Homomorphic Security Preservation",
+          "type": "theorem",
+          "statement": "Homomorphic operations preserve IND-CPA security",
+          "file": "swarm_run/lean_project/SwarmProofs/HomomorphicSecurity.lean",
+          "priority": "P2",
+          "difficulty": "hard",
+          "assigned_to": "pi-Prover",
+          "dependencies": ["LEAN-002", "LEAN-003", "LEAN-004"]
+        }
+      ]
+    }
+  ],
+
+  "summary": {
+    "total_coq_admitted": 11,
+    "total_lean_sorry": 0,
+    "total_pending_nodes": 13,
+    "new_nist_proofs": 4,
+    "new_lean_files": 5
+  },
+
+  "execution_order": [
+    "COQ-002 (K-Elimination soundness - foundational)",
+    "NIST-004 (Security parameter validation - computational)",
+    "NIST-001 (ML-KEM alignment - definitions)",
+    "LEAN-001 (Ring definitions - foundation for all)",
+    "COQ-001 (PeriodGrover - bulk completion)",
+    "COQ-003, COQ-004, COQ-005 (remaining Coq)",
+    "LEAN-002, LEAN-004 (Scheme definitions)",
+    "NIST-002, NIST-003 (NIST compliance)",
+    "LEAN-003, LEAN-005 (Advanced theorems)"
+  ]
+}

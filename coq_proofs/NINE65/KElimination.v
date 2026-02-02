@@ -287,6 +287,144 @@ Qed.
   subtraction by adding A to avoid underflow.
 *)
 
+(** ** Helper Lemmas for Modular Arithmetic with Natural Subtraction *)
+
+(** Adding A doesn't change the result mod A *)
+Lemma mod_add_self : forall a A : nat,
+  A > 0 -> (a + A) mod A = a mod A.
+Proof.
+  intros a A HA.
+  rewrite Nat.add_mod by lia.
+  rewrite Nat.mod_same by lia.
+  rewrite Nat.add_0_r.
+  apply Nat.mod_mod. lia.
+Qed.
+
+(** Safe modular subtraction: (a + A - b) mod A = (a - b) mod A when a >= b *)
+Lemma mod_sub_safe : forall a b A : nat,
+  A > 0 -> b <= a -> (a + A - b) mod A = (a - b) mod A.
+Proof.
+  intros a b A HA Hle.
+  (* (a + A - b) = (a - b) + A when b <= a *)
+  assert (Heq: a + A - b = a - b + A) by lia.
+  rewrite Heq.
+  apply mod_add_self. lia.
+Qed.
+
+(** When b > a: (a + A - b) mod A = (A - (b - a)) mod A *)
+Lemma mod_sub_underflow : forall a b A : nat,
+  A > 0 -> b > a -> b - a < A -> (a + A - b) mod A = A - (b - a).
+Proof.
+  intros a b A HA Hgt Hdiff.
+  assert (Heq: a + A - b = A - (b - a)) by lia.
+  rewrite Heq.
+  apply Nat.mod_small. lia.
+Qed.
+
+(** Modular multiplication distributes: (a * b) mod n = ((a mod n) * (b mod n)) mod n *)
+Lemma mod_mul_mod : forall a b n : nat,
+  n > 0 -> (a * b) mod n = ((a mod n) * (b mod n)) mod n.
+Proof.
+  intros a b n Hn.
+  rewrite Nat.mul_mod by lia.
+  reflexivity.
+Qed.
+
+(** Key identity: (k * M * M_inv) mod A = k mod A when (M * M_inv) mod A = 1 *)
+Lemma mod_mul_inv_cancel : forall k M M_inv A : nat,
+  A > 1 -> (M * M_inv) mod A = 1 -> (k * M * M_inv) mod A = k mod A.
+Proof.
+  intros k M M_inv A HA HMinv.
+  (* k * M * M_inv = k * (M * M_inv) by associativity *)
+  (* (k * M) * M_inv = k * (M * M_inv) *)
+  assert (Hassoc: k * M * M_inv = k * (M * M_inv)) by ring.
+  rewrite Hassoc.
+  (* Goal: (k * (M * M_inv)) mod A = k mod A *)
+  rewrite Nat.mul_mod by lia.
+  rewrite HMinv.
+  rewrite Nat.mul_1_r.
+  apply Nat.mod_mod. lia.
+Qed.
+
+(** Phase computation equals (k * M) mod A *)
+Lemma phase_equals_kM_mod : forall X M A : nat,
+  M > 0 -> A > 1 ->
+  let v_M := X mod M in
+  let v_A := X mod A in
+  let k := X / M in
+  (v_A + A - v_M mod A) mod A = (k * M) mod A.
+Proof.
+  intros X M A HM HA.
+  simpl.
+
+  (* Key facts *)
+  assert (HvA_lt : X mod A < A) by (apply Nat.mod_upper_bound; lia).
+  assert (HvM_mod_lt : (X mod M) mod A < A) by (apply Nat.mod_upper_bound; lia).
+
+  (* From key_congruence: X mod A = (X mod M + (X / M) * M) mod A *)
+  assert (Hcong : X mod A = (X mod M + (X / M) * M) mod A) by (apply key_congruence; lia).
+
+  (* Rewrite using modular addition property *)
+  (* (a + b) mod A = ((a mod A) + (b mod A)) mod A *)
+  rewrite Nat.add_mod in Hcong by lia.
+
+  (* Let a = (X mod M) mod A, b = ((X / M) * M) mod A *)
+  (* X mod A = (a + b) mod A *)
+
+  remember ((X mod M) mod A) as a eqn:Ha.
+  remember (((X / M) * M) mod A) as b eqn:Hb.
+
+  (* Key bounds *)
+  assert (Ha_lt : a < A) by (subst a; apply Nat.mod_upper_bound; lia).
+  assert (Hb_lt : b < A) by (subst b; apply Nat.mod_upper_bound; lia).
+
+  (* Goal: (X mod A + A - a) mod A = b *)
+
+  (* Case analysis on whether (a + b) overflows A *)
+  destruct (le_lt_dec A (a + b)) as [Hover | Hnoover].
+
+  - (* Case: a + b >= A (overflow) *)
+    (* Then (a + b) mod A = a + b - A *)
+    assert (Hsum : (a + b) mod A = a + b - A).
+    {
+      assert (Hupper : a + b < 2 * A) by lia.
+      (* When A <= a + b < 2*A, we have (a + b) mod A = a + b - A *)
+      (* Because (a + b) = 1 * A + (a + b - A) and a + b - A < A *)
+      rewrite Nat.mod_eq by lia.
+      (* (a + b) - A * ((a + b) / A) = a + b - A *)
+      (* We need to show (a + b) / A = 1 *)
+      assert (Hdiv1 : (a + b) / A = 1).
+      {
+        symmetry.
+        apply Nat.div_unique with (a + b - A).
+        - lia.  (* a + b - A < A *)
+        - lia.  (* a + b = 1 * A + (a + b - A) *)
+      }
+      lia.
+    }
+    (* X mod A = a + b - A *)
+    rewrite Hsum in Hcong.
+
+    (* Goal: (a + b - A + A - a) mod A = b *)
+    (* = (b) mod A = b since b < A *)
+    assert (Heq : X mod A + A - a = b) by lia.
+    rewrite Heq.
+    apply Nat.mod_small. exact Hb_lt.
+
+  - (* Case: a + b < A (no overflow) *)
+    (* Then (a + b) mod A = a + b *)
+    assert (Hsum : (a + b) mod A = a + b) by (apply Nat.mod_small; lia).
+    (* X mod A = a + b *)
+    rewrite Hsum in Hcong.
+
+    (* Goal: (a + b + A - a) mod A = b *)
+    (* = (b + A) mod A = b mod A = b since b < A *)
+    assert (Heq : X mod A + A - a = b + A) by lia.
+    rewrite Heq.
+    rewrite mod_add_self by lia.
+    apply Nat.mod_small. exact Hb_lt.
+Qed.
+
 (** K-Elimination Soundness: computed k equals true k *)
 Theorem k_elimination_sound : forall X M A M_inv : nat,
   M > 0 -> A > 1 -> X < M * A ->
@@ -301,35 +439,29 @@ Proof.
   intros X M A M_inv HM HA HRange HMinv.
   simpl.
 
-  (* k_true < A since X < M * A *)
+  (* Step 1: k_true < A since X < M * A *)
   assert (Hk_lt : X / M < A) by (apply k_lt_A; lia).
 
-  (* k_true mod A = k_true *)
+  (* Step 2: k_true mod A = k_true (since k < A) *)
   assert (Hk_mod : (X / M) mod A = X / M) by (apply Nat.mod_small; exact Hk_lt).
 
-  (* From the division algorithm: X = v_M + k * M *)
-  assert (Hdiv : X = X mod M + (X / M) * M) by (apply div_mod_identity; lia).
+  (* Step 3: phase = (k * M) mod A using the helper lemma *)
+  assert (Hphase : (X mod A + A - (X mod M) mod A) mod A = (X / M * M) mod A).
+  { apply phase_equals_kM_mod; lia. }
 
-  (* Taking mod A of both sides gives the key congruence *)
-  assert (Hcong : X mod A = (X mod M + (X / M) * M) mod A) by (apply key_congruence; lia).
+  (* Step 4: k_computed = (phase * M_inv) mod A = ((k * M) mod A * M_inv) mod A *)
+  (* Using modular arithmetic: ((a mod n) * b) mod n = (a * b) mod n *)
+  rewrite Hphase.
 
-  (*
-    The proof proceeds by showing:
-    1. phase = (k * M) mod A (from key congruence)
-    2. phase * M_inv mod A = k * M * M_inv mod A = k * 1 mod A = k mod A = k
+  (* Step 5: ((k * M) mod A * M_inv) mod A = (k * M * M_inv) mod A *)
+  rewrite Nat.mul_mod_idemp_l by lia.
 
-    The algebraic manipulation requires careful handling of Nat subtraction
-    and modular arithmetic identities. The core insight is validated
-    computationally in the μ-Simulator tests.
-  *)
+  (* Step 6: (k * M * M_inv) mod A = k mod A using the inverse property *)
+  rewrite mod_mul_inv_cancel by lia.
 
-  (* This proof requires additional modular arithmetic infrastructure
-     for natural number subtraction handling (v_A - v_M when v_M > v_A).
-     The mathematical correctness is established by the key_congruence lemma
-     and the inverse property. Full mechanization deferred to future work. *)
-
-  (* Admitted with clear justification - see proof strategy above *)
-Admitted.
+  (* Step 7: k mod A = k since k < A *)
+  exact Hk_mod.
+Qed.
 
 (** K-Elimination Completeness: reconstruction recovers correct k *)
 Theorem k_elimination_complete : forall k v_M M A : nat,
