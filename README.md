@@ -4,7 +4,7 @@
 
 [![Lean 4](https://img.shields.io/badge/Lean-4.28.0-blue)](https://lean-lang.org/)
 [![Coq](https://img.shields.io/badge/Coq-8.20.1-orange)](https://coq.inria.fr/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
 
 ---
 
@@ -187,7 +187,9 @@ def noise_after_mul (n1 n2 : Nat) : Nat :=
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+**Proprietary - All Rights Reserved**
+
+Copyright (c) 2026 QMNF Project. See [LICENSE](LICENSE) for details.
 
 ## Citation
 
