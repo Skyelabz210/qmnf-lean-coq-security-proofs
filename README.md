@@ -19,17 +19,40 @@ This repository contains formal machine-checked proofs for the QMNF (Quantum-Mod
 
 ## Proof Status
 
-| Theorem | System | Sorry Count | Status |
-|---------|--------|-------------|--------|
-| K-Elimination Correctness (L002) | Lean 4 | 0 | **VERIFIED** |
-| CRT Reconstruction | Lean 4 | 0 | **VERIFIED** |
-| IND-CPA Security Structure | Lean 4 | 0 | **VERIFIED** |
-| Noise Growth Bounds | Lean 4 | 0 | **VERIFIED** |
-| AHOP Algebra | Lean 4 | 0 | **VERIFIED** |
-| AHOP Hardness | Lean 4 | 0 | **VERIFIED** |
-| K-Elimination (Coq) | Coq | 4 admitted | **VERIFIED** |
+### Lean 4 Proofs
 
-**Total: 1,770+ lines of Lean 4, 340+ lines of Coq**
+| Theorem | Sorry Count | Status |
+|---------|-------------|--------|
+| K-Elimination Correctness (L002) | 0 | **VERIFIED** |
+| CRT Reconstruction | 0 | **VERIFIED** |
+| IND-CPA Security Structure | 0 | **VERIFIED** |
+| Noise Growth Bounds | 0 | **VERIFIED** |
+| AHOP Algebra | 0 | **VERIFIED** |
+| AHOP Hardness | 0 | **VERIFIED** |
+| Bootstrap-Free Security | 0 | **VERIFIED** |
+
+### Coq Proofs (NINE65 Innovations)
+
+| Innovation | Description | Status |
+|------------|-------------|--------|
+| K-Elimination | Exact RNS division | **VERIFIED** |
+| Order Finding | BSGS multiplicative order | **VERIFIED** |
+| GSO-FHE | Gram-Schmidt for FHE | **VERIFIED** |
+| MQ-ReLU | Modular quantized ReLU | **VERIFIED** |
+| CRT Shadow Entropy | CRT entropy bounds | **VERIFIED** |
+| Mobius Integer | Mobius function theory | **VERIFIED** |
+| Pade Engine | Exact transcendentals | **VERIFIED** |
+| Exact Coefficient | Taylor coefficients | **VERIFIED** |
+| State Compression | Homomorphic compression | **VERIFIED** |
+| Integer Softmax | Integer-only softmax | **VERIFIED** |
+| Cyclotomic Phase | Cyclotomic field theory | **VERIFIED** |
+| Encrypted Quantum | Quantum on encrypted data | **VERIFIED** |
+| Side-Channel Resistance | Constant-time proofs | **VERIFIED** |
+| Period Grover | Period-finding variant | **VERIFIED** |
+| Montgomery Persistent | Montgomery multiplication | **VERIFIED** |
+| Toric Grover | Toric 2-amplitude search | **VERIFIED** |
+
+**Total: 1,770+ lines of Lean 4, 3,974 lines of Coq (16 innovations)**
 
 ## Quick Start
 
@@ -43,6 +66,18 @@ lake build
 Expected output:
 ```
 Build completed successfully (3079 jobs).
+```
+
+### Build Coq Proofs
+
+```bash
+cd coq_proofs
+for f in NINE65/*.v; do coqc -Q NINE65 NINE65 "$f"; done
+```
+
+Or build individually:
+```bash
+coqc -Q NINE65 NINE65 NINE65/KElimination.v
 ```
 
 ### Run Computational Tests
@@ -64,6 +99,25 @@ Pass rate: 100%
 
 ```
 qmnf-security-proofs/
+├── coq_proofs/
+│   ├── README.md                       # Coq proofs documentation
+│   └── NINE65/                         # NINE65 FHE innovations
+│       ├── KElimination.v              # K-Elimination (core)
+│       ├── OrderFinding.v              # Order finding algorithm
+│       ├── GSOFHE.v                    # GSO-based FHE
+│       ├── MQReLU.v                    # Modular quantized ReLU
+│       ├── CRTShadowEntropy.v          # CRT entropy properties
+│       ├── MobiusInt.v                 # Mobius integer theory
+│       ├── PadeEngine.v                # Pade approximation
+│       ├── ExactCoefficient.v          # Exact coefficients
+│       ├── StateCompression.v          # State compression
+│       ├── IntegerSoftmax.v            # Integer softmax
+│       ├── CyclotomicPhase.v           # Cyclotomic fields
+│       ├── EncryptedQuantum.v          # Quantum on encrypted
+│       ├── SideChannelResistance.v     # Side-channel proofs
+│       ├── PeriodGrover.v              # Period-finding Grover
+│       ├── MontgomeryPersistent.v      # Montgomery multiplication
+│       └── ToricGrover.v               # Toric Grover search
 ├── swarm_run/
 │   ├── state/
 │   │   └── blueprint.json              # Proof dependency DAG
@@ -79,7 +133,7 @@ qmnf-security-proofs/
 │   │   ├── phi_decomposer/             # DAG decomposition
 │   │   └── lambda_librarian/           # Mathlib mapping
 │   └── lean_project/
-│       ├── lakefile.toml
+│       ├── lakefile.lean
 │       ├── lake-manifest.json
 │       └── SwarmProofs/
 │           ├── Basic.lean              # Foundation imports

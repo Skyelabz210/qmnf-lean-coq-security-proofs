@@ -6,6 +6,15 @@ build/
 *.ilean
 *.trace
 
+# Coq build artifacts
+*.vo
+*.vok
+*.vos
+*.glob
+*.aux
+.lia.cache
+.nia.cache
+
 # Python
 __pycache__/
 *.py[cod]
