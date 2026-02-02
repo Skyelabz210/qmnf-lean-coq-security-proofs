@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.1",
+  "title": "Security.lean Skeleton Completion",
+  "main_goal": "Replace trivial placeholders with substantive proofs that compile without sorry",
+  "context": "QMNF integer-only arithmetic, Lean 4, Mathlib",
+  "created_at": "2026-02-01T12:00:00Z",
+  "rounds_completed": 0,
+  "nodes": [
+    {
+      "id": "S001",
+      "label": "Noise Growth Induction Base Case",
+      "type": "lemma",
+      "statement": "For depth d=0, noise remains at initial_noise (no operations performed)",
+      "dependencies": [],
+      "difficulty": "trivial",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S002",
+      "label": "Noise Growth Single Multiplication",
+      "type": "lemma",
+      "statement": "After one multiplication, noise <= n1*n2*t + n1 + n2",
+      "dependencies": ["S001"],
+      "difficulty": "easy",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S003",
+      "label": "Noise Growth Induction Step",
+      "type": "lemma",
+      "statement": "If noise bounded at depth d, then bounded at depth d+1 given parameter constraints",
+      "dependencies": ["S002"],
+      "difficulty": "medium",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S004",
+      "label": "Noise Growth Main Theorem",
+      "type": "theorem",
+      "statement": "For d operations with proper parameters, noise stays below q/(2t)",
+      "dependencies": ["S001", "S002", "S003"],
+      "difficulty": "medium",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S005",
+      "label": "K-Elimination Preserves Bounds",
+      "type": "lemma",
+      "statement": "K-Elimination exact rescaling does not increase relative noise",
+      "dependencies": [],
+      "difficulty": "medium",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S006",
+      "label": "Bootstrap-Free Depth Bound",
+      "type": "theorem",
+      "statement": "With K-Elimination, circuit depth L is achievable without bootstrap when q > 2^(L+1) * t * initial_noise",
+      "dependencies": ["S004", "S005"],
+      "difficulty": "hard",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S007",
+      "label": "Security Reduction Structure",
+      "type": "definition",
+      "statement": "Define algebraic security via ciphertext indistinguishability without probability monad",
+      "dependencies": [],
+      "difficulty": "hard",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    },
+    {
+      "id": "S008",
+      "label": "Deterministic Security Theorem",
+      "type": "theorem",
+      "statement": "For any deterministic distinguisher D, advantage is bounded by noise/q ratio",
+      "dependencies": ["S006", "S007"],
+      "difficulty": "hard",
+      "status": "pending",
+      "assigned_to": null,
+      "confidence": 0.0,
+      "rework_count": 0
+    }
+  ]
+}

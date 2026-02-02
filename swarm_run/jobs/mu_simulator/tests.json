@@ -1,0 +1,174 @@
+{
+  "summary": {
+    "total": 17,
+    "passed": 17,
+    "failed": 0,
+    "pass_rate_permille": 1000
+  },
+  "tests": [
+    {
+      "name": "k_elimination_basic",
+      "passed": true,
+      "details": "Tested 9 values",
+      "params": {
+        "alpha_cap": 1000003,
+        "beta_cap": 1000033
+      }
+    },
+    {
+      "name": "k_elimination_edge_cases",
+      "passed": true,
+      "details": "All edge cases passed",
+      "params": {
+        "alpha_cap": 997,
+        "beta_cap": 1009
+      }
+    },
+    {
+      "name": "k_elimination_coprimality_violation",
+      "passed": true,
+      "details": "Correctly raised ValueError: alpha_cap and beta_cap must be coprime: gcd(100, 200) = 100",
+      "params": {
+        "alpha_cap": 100,
+        "beta_cap": 200
+      }
+    },
+    {
+      "name": "k_elimination_property_based",
+      "passed": true,
+      "details": "Passed 333 tests",
+      "params": {
+        "total_tests": 333
+      }
+    },
+    {
+      "name": "k_elimination_mersenne_primes",
+      "passed": true,
+      "details": "Tested with Mersenne prime alpha=2147483647",
+      "params": {
+        "alpha_cap": 2147483647,
+        "beta_cap": 2147483629
+      }
+    },
+    {
+      "name": "crt_reconstruction_basic",
+      "passed": true,
+      "details": "All 5 values reconstructed correctly",
+      "params": {
+        "alpha_cap": 1000003,
+        "beta_cap": 1000033
+      }
+    },
+    {
+      "name": "crt_reconstruction_bijectivity",
+      "passed": true,
+      "details": "All 10403 values are bijective",
+      "params": {
+        "alpha_cap": 101,
+        "beta_cap": 103,
+        "product": 10403
+      }
+    },
+    {
+      "name": "crt_reconstruction_uniqueness",
+      "passed": true,
+      "details": "All 9797 values have unique representations",
+      "params": {
+        "alpha_cap": 97,
+        "beta_cap": 101
+      }
+    },
+    {
+      "name": "crt_multiple_moduli",
+      "passed": true,
+      "details": "Passed 592 tests across 7 moduli pairs",
+      "params": {
+        "total_tests": 592
+      }
+    },
+    {
+      "name": "parameter_coprimality",
+      "passed": true,
+      "details": "All 5 NTT primes are pairwise coprime",
+      "params": {
+        "primes": [
+          998244353,
+          985661441,
+          754974721,
+          469762049,
+          167772161
+        ]
+      }
+    },
+    {
+      "name": "parameter_security_bounds",
+      "passed": true,
+      "details": "N=4096, log2(q)=54, security_estimate=1664 bits (PASS: need >= 128)",
+      "params": {
+        "N": 4096,
+        "q_bits": 54,
+        "sigma_bits": 2,
+        "security_estimate": 1664
+      }
+    },
+    {
+      "name": "parameter_k_safe",
+      "passed": true,
+      "details": "M=983930967448092673, anchor=754974721, total_capacity_bits=89, coprime=True (K-SAFE)",
+      "params": {
+        "M": 983930967448092673,
+        "anchor": 754974721,
+        "capacity_bits": 89,
+        "coprime": true
+      }
+    },
+    {
+      "name": "parameter_noise_budget",
+      "passed": true,
+      "details": "budget_bits=38, initial_noise_bits=11, max_depth_qmnf=6, max_depth_conservative=4 (PASS: need >= 5 with K-Elimination)",
+      "params": {
+        "N": 4096,
+        "budget_bits": 38,
+        "noise_bits": 11,
+        "max_depth_qmnf": 6,
+        "max_depth_conservative": 4
+      }
+    },
+    {
+      "name": "parameter_modular_inverse_exists",
+      "passed": true,
+      "details": "All 5 inverse existence tests passed",
+      "params": {
+        "test_cases": 5
+      }
+    },
+    {
+      "name": "k_elimination_algebraic_identity",
+      "passed": true,
+      "details": "Identity verified for 1008 values",
+      "params": {
+        "alpha_cap": 1000003,
+        "beta_cap": 1000033,
+        "num_tests": 1008
+      }
+    },
+    {
+      "name": "k_elimination_homomorphism",
+      "passed": true,
+      "details": "Homomorphism verified for 5 pairs",
+      "params": {
+        "alpha_cap": 997,
+        "beta_cap": 1009
+      }
+    },
+    {
+      "name": "k_elimination_multiplication",
+      "passed": true,
+      "details": "Multiplication verified for 5 pairs",
+      "params": {
+        "alpha_cap": 10007,
+        "beta_cap": 10009
+      }
+    }
+  ]
+}

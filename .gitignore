@@ -1,0 +1,37 @@
+# Lean 4 build artifacts
+.lake/
+lake-packages/
+build/
+*.olean
+*.ilean
+*.trace
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.env
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Large binary files
+*.bin
+*.dat
