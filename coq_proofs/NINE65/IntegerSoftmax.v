@@ -71,6 +71,15 @@ Proof.
   intros. simpl. reflexivity.
 Qed.
 
+(** Key lemma: fold_left Nat.add commutes with addition in accumulator *)
+Lemma fold_left_add_acc : forall l acc,
+  fold_left Nat.add l acc = acc + fold_left Nat.add l 0.
+Proof.
+  induction l as [| h t IH]; intros acc.
+  - simpl. lia.
+  - simpl. rewrite IH. rewrite (IH h). lia.
+Qed.
+
 Lemma sum_probs_cons : forall h t,
   sum_probs (h :: t) = h + sum_probs t.
 Proof.
@@ -78,15 +87,51 @@ Proof.
   unfold sum_probs.
   simpl.
   (* Need to prove fold_left Nat.add t h = h + fold_left Nat.add t 0 *)
-Admitted.
+  rewrite fold_left_add_acc.
+  reflexivity.
+Qed.
+
+(** Helper: extract the add_one function for separate reasoning *)
+Fixpoint add_one_to_first (l : list nat) (d : nat) : list nat :=
+  match l, d with
+  | [], _ => []
+  | h :: t, 0 => h :: t
+  | h :: t, S d' => (h + 1) :: add_one_to_first t d'
+  end.
+
+Lemma distribute_remainder_unfold : forall probs target,
+  distribute_remainder probs target = add_one_to_first probs (target - sum_probs probs).
+Proof.
+  intros. unfold distribute_remainder. reflexivity.
+Qed.
+
+Lemma sum_probs_nil : sum_probs [] = 0.
+Proof. unfold sum_probs. simpl. reflexivity. Qed.
+
+Lemma add_one_sum : forall l d,
+  d <= length l ->
+  sum_probs (add_one_to_first l d) = sum_probs l + d.
+Proof.
+  induction l as [| h t IH]; intros d Hlen.
+  - simpl in Hlen. assert (d = 0) by lia. subst. simpl.
+    rewrite sum_probs_nil. lia.
+  - destruct d as [| d'].
+    + simpl. lia.
+    + simpl. simpl in Hlen.
+      rewrite sum_probs_cons. rewrite sum_probs_cons.
+      rewrite IH by lia. lia.
+Qed.
 
 Theorem distribute_maintains_bound : forall probs : list nat, forall target : nat,
   sum_probs probs <= target ->
   target - sum_probs probs <= length probs ->
   sum_probs (distribute_remainder probs target) = target.
 Proof.
-  (* Each deficit unit is added to one element *)
-Admitted.
+  intros probs target Hle Hdeficit.
+  rewrite distribute_remainder_unfold.
+  rewrite add_one_sum by assumption.
+  lia.
+Qed.
 
 (** * Argmax is Preserved *)
 
@@ -164,6 +209,22 @@ Qed.
 Definition is_stable (is : IntSoftmax) : Prop :=
   forall p, In p is.(is_probs) -> p <= is.(is_scale).
 
+(** Key lemma: any element of a list is at most the sum of all elements *)
+Lemma element_le_sum : forall l p,
+  In p l -> p <= sum_probs l.
+Proof.
+  induction l as [| h t IH]; intros p Hin.
+  - (* l = [] : contradiction, In p [] is False *)
+    inversion Hin.
+  - (* l = h :: t *)
+    rewrite sum_probs_cons.
+    destruct Hin as [Heq | Hin_t].
+    + (* p = h *)
+      subst. lia.
+    + (* In p t *)
+      specialize (IH p Hin_t). lia.
+Qed.
+
 Theorem stability_from_exactness : forall is : IntSoftmax,
   exact_sum is -> is_stable is.
 Proof.
@@ -172,7 +233,10 @@ Proof.
   intros p Hin.
   unfold exact_sum in Hexact.
   (* If sum = scale and all non-negative, each element <= scale *)
-Admitted.
+  rewrite <- Hexact.
+  apply element_le_sum.
+  exact Hin.
+Qed.
 
 (** * Summary *)
 

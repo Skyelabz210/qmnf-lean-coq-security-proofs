@@ -79,9 +79,29 @@ Theorem sign_detection_correct : forall q r : nat,
   | Zero => x = 0%Z
   end.
 Proof.
-  (* The proof follows by case analysis on detect_sign result
-     and properties of the threshold convention *)
-Admitted.
+  intros q r Hq Hr.
+  simpl.
+  unfold detect_sign, residue_to_signed, threshold.
+  assert (H0ltq2: 0 < q / 2) by (apply Nat.div_str_pos; lia).
+  (* Case analysis on r = 0 *)
+  destruct (Nat.eqb r 0) eqn:Hr0.
+  - (* r = 0: Zero case *)
+    apply Nat.eqb_eq in Hr0. subst r.
+    destruct (0 <? q / 2) eqn:Hcmp; [|apply Nat.ltb_ge in Hcmp; lia].
+    reflexivity.
+  - (* r <> 0 *)
+    apply Nat.eqb_neq in Hr0.
+    destruct (r <? q / 2) eqn:Hcmp.
+    + (* r < q/2: Positive case *)
+      (* x = Z.of_nat r, need x > 0 *)
+      apply Z.gt_lt_iff.
+      apply Nat.ltb_lt in Hcmp.
+      lia.
+    + (* r >= q/2: Negative case *)
+      (* x = Z.of_nat r - Z.of_nat q, need x < 0 *)
+      apply Nat.ltb_ge in Hcmp.
+      lia.
+Qed.
 
 (** * ReLU Implementation *)
 
@@ -101,11 +121,35 @@ Theorem mq_relu_correct : forall q r : nat,
   let result_signed := residue_to_signed q result in
   result_signed = Z.max 0 x.
 Proof.
-  (* The proof follows by case analysis:
-     - If r = 0: x = 0, result = 0, max(0,0) = 0
-     - If r < q/2: x = r > 0, result = r, max(0,r) = r
-     - If r >= q/2: x = r - q < 0, result = 0, max(0, x) = 0 *)
-Admitted.
+  intros q r Hq Hr.
+  unfold mq_relu, detect_sign, residue_to_signed, threshold.
+  assert (H0ltq2: 0 < q / 2) by (apply Nat.div_str_pos; lia).
+  (* Case analysis on r = 0 *)
+  destruct (Nat.eqb r 0) eqn:Hr0.
+  - (* r = 0: result = 0, x = 0, max(0,0) = 0 *)
+    apply Nat.eqb_eq in Hr0. subst r.
+    destruct (0 <? q / 2) eqn:Hcmp0; [reflexivity|apply Nat.ltb_ge in Hcmp0; lia].
+  - (* r <> 0 *)
+    apply Nat.eqb_neq in Hr0.
+    destruct (r <? q / 2) eqn:Hcmp.
+    + (* r < q/2: Positive, result = r *)
+      (* Need to reduce the if expressions using Hcmp *)
+      (* Both residue_to_signed r and residue_to_signed of x use r <? q/2 *)
+      (* The proof follows from the fact that both simplify to Z.of_nat r *)
+      (* and Z.max 0 (Z.of_nat r) = Z.of_nat r when r > 0 *)
+      apply Nat.ltb_lt in Hcmp as Hcmp'.
+      (* Rewrite the if-then-else using the equation *)
+      replace (if r <? q / 2 then Z.of_nat r else (Z.of_nat r - Z.of_nat q)%Z)
+        with (Z.of_nat r) by (rewrite Hcmp; reflexivity).
+      symmetry. apply Z.max_r. lia.
+    + (* r >= q/2: Negative, result = 0 *)
+      destruct (0 <? q / 2) eqn:Hcmp0; [|apply Nat.ltb_ge in Hcmp0; lia].
+      apply Nat.ltb_ge in Hcmp as Hcmp'.
+      (* result_signed = 0 (from Hcmp0), x = r - q (from Hcmp) *)
+      replace (if r <? q / 2 then Z.of_nat r else (Z.of_nat r - Z.of_nat q)%Z)
+        with (Z.of_nat r - Z.of_nat q)%Z by (rewrite Hcmp; reflexivity).
+      symmetry. apply Z.max_l. lia.
+Qed.
 
 (** * Leaky ReLU *)
 
