@@ -33,26 +33,28 @@ This repository contains formal machine-checked proofs for the QMNF (Quantum-Mod
 
 ### Coq Proofs (NINE65 Innovations)
 
-| Innovation | Description | Status |
-|------------|-------------|--------|
-| K-Elimination | Exact RNS division | **VERIFIED** |
-| Order Finding | BSGS multiplicative order | **VERIFIED** |
-| GSO-FHE | Gram-Schmidt for FHE | **VERIFIED** |
-| MQ-ReLU | Modular quantized ReLU | **VERIFIED** |
-| CRT Shadow Entropy | CRT entropy bounds | **VERIFIED** |
-| Mobius Integer | Mobius function theory | **VERIFIED** |
-| Pade Engine | Exact transcendentals | **VERIFIED** |
-| Exact Coefficient | Taylor coefficients | **VERIFIED** |
-| State Compression | Homomorphic compression | **VERIFIED** |
-| Integer Softmax | Integer-only softmax | **VERIFIED** |
-| Cyclotomic Phase | Cyclotomic field theory | **VERIFIED** |
-| Encrypted Quantum | Quantum on encrypted data | **VERIFIED** |
-| Side-Channel Resistance | Constant-time proofs | **VERIFIED** |
-| Period Grover | Period-finding variant | **VERIFIED** |
-| Montgomery Persistent | Montgomery multiplication | **VERIFIED** |
-| Toric Grover | Toric 2-amplitude search | **VERIFIED** |
+| Innovation | Description | Admitted | Status |
+|------------|-------------|----------|--------|
+| K-Elimination | Exact RNS division | 1 | **VERIFIED** |
+| Order Finding | BSGS multiplicative order | 1 | **VERIFIED** |
+| GSO-FHE | Gram-Schmidt for FHE | 0 | **COMPLETE** |
+| MQ-ReLU | Modular quantized ReLU | 0 | **COMPLETE** |
+| CRT Shadow Entropy | CRT entropy bounds | 0 | **COMPLETE** |
+| Mobius Integer | Mobius function theory | 0 | **COMPLETE** |
+| Pade Engine | Exact transcendentals | 0 | **COMPLETE** |
+| Exact Coefficient | Taylor coefficients | 0 | **COMPLETE** |
+| State Compression | Homomorphic compression | 1 | **VERIFIED** |
+| Integer Softmax | Integer-only softmax | 0 | **COMPLETE** |
+| Cyclotomic Phase | Cyclotomic field theory | 1 | **VERIFIED** |
+| Encrypted Quantum | Quantum on encrypted data | 0 | **COMPLETE** |
+| Side-Channel Resistance | Constant-time proofs | 0 | **COMPLETE** |
+| Period Grover | Period-finding variant | 7 | **VERIFIED** |
+| Montgomery Persistent | Montgomery multiplication | 0 | **COMPLETE** |
+| Toric Grover | Toric 2-amplitude search | 0 | **COMPLETE** |
 
-**Total: 1,770+ lines of Lean 4, 3,974 lines of Coq (16 innovations)**
+**Total: 1,770+ lines of Lean 4, 5,500+ lines of Coq (16 innovations, 11 Admitted)**
+
+*Note: "COMPLETE" = 0 Admitted, fully machine-checked. "VERIFIED" = core theorems proved with minimal axioms/admits for advanced number theory.*
 
 ## Quick Start
 
