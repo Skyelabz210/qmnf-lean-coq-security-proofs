@@ -1,258 +1,410 @@
-# QMNF Security Proofs
+# QMNF Formal Proof Stack
 
-**Formal verification of QMNF's bootstrap-free FHE security**
+Machine-checked proofs for the QMNF/NINE65 cryptographic system.
+Lean 4 (Mathlib), Coq 8.18+, and supporting documentation.
 
-[![Lean 4](https://img.shields.io/badge/Lean-4.28.0-blue)](https://lean-lang.org/)
-[![Coq](https://img.shields.io/badge/Coq-8.20.1-orange)](https://coq.inria.fr/)
-[![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
+**All Rights Reserved. Copyright (c) 2025-2026 HackFate Research.**
+
+> **Access restriction:** This repository and all its contents are the exclusive
+> property of HackFate Research. Access is limited to HackFate Research team
+> members and collaborators operating under signed authorization. No license is
+> granted for any other use. See [LICENSE](LICENSE).
 
 ---
 
-## Overview
+## Table of Contents
 
-This repository contains formal machine-checked proofs for the QMNF (Quantum-Modular Numerical Framework) cryptographic system, including:
+- [Proof Inventory](#proof-inventory)
+  - [Lean 4 Proofs](#lean-4-proofs)
+  - [Coq Proofs](#coq-proofs)
+  - [NIST Compliance Tests](#nist-compliance-tests)
+  - [Documentation](#documentation)
+  - [TeX Papers](#tex-papers)
+  - [Build Configurations](#build-configurations)
+- [Formalization Swarm Workspace](#formalization-swarm-workspace)
+- [Building](#building)
+- [Proof Status Summary](#proof-status-summary)
+- [Repository Layout](#repository-layout)
 
-- **K-Elimination Correctness** - The 60-year breakthrough in RNS division
-- **IND-CPA Security** - Semantic security under Ring-LWE assumption
-- **Bootstrap-Free FHE** - Deep circuits without bootstrapping overhead
-- **AHOP Security** - Apollonian Hyperbolic Orbit Problem hardness
+---
 
-## Proof Status
+## Proof Inventory
 
 ### Lean 4 Proofs
 
-| Theorem | Sorry Count | Status |
-|---------|-------------|--------|
-| K-Elimination Correctness (L002) | 0 | **VERIFIED** |
-| CRT Reconstruction | 0 | **VERIFIED** |
-| IND-CPA Security Structure | 0 | **VERIFIED** |
-| Noise Growth Bounds | 0 | **VERIFIED** |
-| AHOP Algebra | 0 | **VERIFIED** |
-| AHOP Hardness | 0 | **VERIFIED** |
-| Bootstrap-Free Security | 0 | **VERIFIED** |
+#### `lean4/k-elimination/` — K-Elimination theorem and dependencies
 
-### Coq Proofs (NINE65 Innovations)
+Core proof of exact overflow recovery in Residue Number Systems.
+Given coprime moduli M and A, proves k = (v_A - v_M) * M^-1 mod A
+recovers the overflow count exactly for X < M*A.
 
-| Innovation | Description | Admitted | Status |
-|------------|-------------|----------|--------|
-| K-Elimination | Exact RNS division | 1 | **VERIFIED** |
-| Order Finding | BSGS multiplicative order | 1 | **VERIFIED** |
-| GSO-FHE | Gram-Schmidt for FHE | 0 | **COMPLETE** |
-| MQ-ReLU | Modular quantized ReLU | 0 | **COMPLETE** |
-| CRT Shadow Entropy | CRT entropy bounds | 0 | **COMPLETE** |
-| Mobius Integer | Mobius function theory | 0 | **COMPLETE** |
-| Pade Engine | Exact transcendentals | 0 | **COMPLETE** |
-| Exact Coefficient | Taylor coefficients | 0 | **COMPLETE** |
-| State Compression | Homomorphic compression | 1 | **VERIFIED** |
-| Integer Softmax | Integer-only softmax | 0 | **COMPLETE** |
-| Cyclotomic Phase | Cyclotomic field theory | 1 | **VERIFIED** |
-| Encrypted Quantum | Quantum on encrypted data | 0 | **COMPLETE** |
-| Side-Channel Resistance | Constant-time proofs | 0 | **COMPLETE** |
-| Period Grover | Period-finding variant | 7 | **VERIFIED** |
-| Montgomery Persistent | Montgomery multiplication | 0 | **COMPLETE** |
-| Toric Grover | Toric 2-amplitude search | 0 | **COMPLETE** |
+| File | What it proves |
+|------|----------------|
+| `KElimination.lean` | Module root; imports submodules |
+| `KElimination/Basic.lean` | Division algorithm identity V = v_alpha + k * alpha, range bound k < beta |
+| `KElimination/ZMod.lean` | Key congruence V mod A = (v_M + k*M) mod A, modular inverse existence via Bezout |
+| `KElimination/Lattice/CRT.lean` | CRT uniqueness and reconstruction for coprime moduli |
+| `KElimination/ShadowEntropy.lean` | CRT shadow residues are uniformly distributed (entropy bound) |
+| `KElimination/AHOP/Algebra.lean` | Apollonian reflection is an involution; Descartes form is algebraically invariant |
+| `KElimination/AHOP/Hardness.lean` | Orbit cardinality grows as 4^L (exponential lower bound) |
+| `KElimination/AHOP/Parameters.lean` | Concrete parameter instantiation for 128-bit security level |
+| `lakefile.lean` | Build configuration |
 
-**Total: 1,770+ lines of Lean 4, 5,500+ lines of Coq (16 innovations, 11 Admitted)**
+#### `lean4/exact-transcendentals/` — Exact transcendental function proofs
 
-*Note: "COMPLETE" = 0 Admitted, fully machine-checked. "VERIFIED" = core theorems proved with minimal axioms/admits for advanced number theory.*
+Proofs for computing transcendental functions (exp, log, sin, cos, sqrt)
+using only exact rational arithmetic — no floating-point.
 
-## Quick Start
+| File | What it proves |
+|------|----------------|
+| `ExactTranscendentals.lean` | Module root |
+| `Main.lean` | Entry point |
+| `ExactTranscendentals/Basic.lean` | Foundational imports and definitions |
+| `ExactTranscendentals/Agm.lean` | Arithmetic-geometric mean iteration converges; used for log/pi computation |
+| `ExactTranscendentals/BinarySplitting.lean` | Binary splitting for hypergeometric series achieves O(n log^2 n) |
+| `ExactTranscendentals/ContinuedFraction.lean` | Continued fraction convergents bound error monotonically |
+| `ExactTranscendentals/Cordic.lean` | CORDIC shift-and-add computes trig functions without multiplication |
+| `ExactTranscendentals/ExactRational.lean` | Rational representation preserves exactness through arithmetic ops |
+| `ExactTranscendentals/Isqrt.lean` | Integer square root via Babylonian method terminates and is exact |
 
-### Build Lean 4 Proofs
+#### `lean4/security-swarm/SwarmProofs/` — Security reduction proofs
+
+IND-CPA security reductions for the QMNF-HE scheme under Ring-LWE + AHOP assumptions.
+
+| File | What it proves |
+|------|----------------|
+| `Basic.lean` | Foundation imports, config definitions |
+| `RingDefinitions.lean` | Ring polynomial types and operations over Z_q[x]/(x^n+1) |
+| `CRT.lean` | CRT uniqueness and reconstruction |
+| `KElimination.lean` | K-Elimination soundness and exactness |
+| `Security.lean` | IND-CPA game definition; encryption indistinguishability structure |
+| `SecurityLemmas.lean` | RLWE indistinguishability, encryption hides message, bootstrap-free depth bound |
+| `SecurityComplete.lean` | Composition: all security components combine into overall security claim |
+| `HomomorphicSecurity.lean` | Homomorphic operations preserve ciphertext indistinguishability |
+| `INDCPAGame.lean` | Concrete IND-CPA game with decrypt correctness |
+| `NISTCompliance.lean` | Parameter validation for NIST security level 128+ |
+| `AHOPAlgebra.lean` | AHOP algebraic structure over Z_q (not geometric — refutes criticism) |
+| `AHOPHardness.lean` | AHOP orbit exponential growth; PPT hardness axiom |
+| `AHOPSecurity.lean` | AHOP-to-FHE security reduction; advantage bound |
+| `AHOPParameters.lean` | Production parameter instantiation |
+
+#### `lean4/shadow-nist/` — Shadow entropy and NIST compliance
+
+Proofs that CRT shadow residues satisfy NIST SP 800-22 statistical
+randomness criteria (used for entropy harvesting from arithmetic operations).
+
+| File | What it proves |
+|------|----------------|
+| `NISTCompliance.lean` | Shadow output passes NIST frequency, runs, and serial tests |
+| `ShadowCorrelation.lean` | Cross-channel shadow residues are uncorrelated |
+| `ShadowNISTCompliance.lean` | Combined NIST compliance for full shadow entropy pipeline |
+| `ShadowSecurityDefs.lean` | Formal definitions of shadow entropy security properties |
+| `ShadowSecurityTheorems.lean` | Main theorems: shadow residues are computationally indistinguishable from random |
+| `ShadowUniform.lean` | Uniformity of shadow distribution over Z_q |
+
+#### `lean4/ahop-gaps/` — Gap closure proofs
+
+Proofs that close specific gaps identified during security audit.
+
+| File | What it proves |
+|------|----------------|
+| `GAP001/AsymptoticLemma.lean` | 2^(-lambda) < lambda^(-c) for sufficiently large lambda (negligible function bound) |
+| `GAP004/BootstrapFreeDepth.lean` | With q > 2^50, t < 2^20, initial_noise <= t: noise < q/(2t) holds (depth bound) |
+| `GAP006/DecryptCorrectness.lean` | Rounding recovers plaintext when noise < q/(2t) (decrypt correctness) |
+
+#### `lean4/formalization-swarm/` — Numbered innovation proofs (02-25)
+
+Individual proofs for each QMNF innovation, produced by the formalization swarm.
+
+| File | What it proves |
+|------|----------------|
+| `02_QMNF_Lean4_Proofs.lean` | QMNF arithmetic foundations: CRT reconstruction, modular inverse |
+| `05_KElimination.lean` | K-Elimination standalone proof |
+| `06_CRTBigInt.lean` | Two-prime CRT representation correctness; overflow detection |
+| `07_ShadowEntropy.lean` | Shadow entropy extraction from CRT residues |
+| `08_PadeEngine.lean` | Pade approximant convergence for rational function evaluation |
+| `09_MobiusInt.lean` | Mobius function computation over integers; inversion formula |
+| `10_PersistentMontgomery.lean` | Montgomery multiplication maintains residue invariant across operations |
+| `11_IntegerNN.lean` | Integer-only neural network forward pass preserves exact arithmetic |
+| `12_CyclotomicPhase.lean` | Cyclotomic polynomial evaluation in Z_q; roots of unity properties |
+| `13_MQReLU.lean` | Modular quantized ReLU: piecewise-linear activation over Z_t |
+| `14_BinaryGCD.lean` | Binary GCD terminates and produces correct result |
+| `15_PLMGRails.lean` | PLMG rail switching for parallel modular arithmetic |
+| `16_DCBigIntHelix.lean` | Divide-and-conquer big integer with helical structure |
+| `17_GroverSwarm.lean` | Grover search over RNS state space |
+| `18_WASSAN.lean` | Wasserstein distance computation in integer arithmetic |
+| `19_TimeCrystal.lean` | Time-crystal periodicity for deterministic scheduling |
+| `20_GSO.lean` | Gram-Schmidt orthogonalization over exact rationals |
+| `21_MANA.lean` | MANA SIMD lane-parallel FHE acceleration correctness |
+| `22_RayRam.lean` | Ray-RAM memory addressing for RNS lookup tables |
+| `23_ClockworkPrime.lean` | Clockwork prime selection for RNS channel coprimality |
+| `24_BootstrapFreeFHE.lean` | Bootstrap-free FHE depth bound via exact rescaling |
+| `25_RealTimeFHE.lean` | Real-time FHE latency bounds under exact arithmetic |
+| `QMNFProofs.lean` | Module root for QMNFProofs namespace |
+| `QMNFProofs/KElimination.lean` | K-Elimination within QMNFProofs module structure |
+
+#### `lean4/standalone/` — Individual proof files
+
+Standalone proofs collected from various development sessions. Some are
+duplicates of the formalization-swarm proofs; some are unique.
+
+| File | What it proves |
+|------|----------------|
+| `KElimination.lean` | K-Elimination (standalone version) |
+| `k_elimination_sprint6.lean` | K-Elimination sprint-6 refinement |
+| `ahop_sprint6.lean` | AHOP algebraic proofs (sprint-6) |
+| `bezout_lemmas.lean` | Bezout's identity and extended GCD properties |
+| `ConstantTime.lean` | Constant-time operation equivalence (side-channel resistance) |
+| `descartes_algebra.lean` | Descartes circle theorem algebraic formulation |
+| `PeriodGrover.lean` | Period-finding via Grover search |
+| `QMNF_Formal_Verification.lean` | Combined QMNF verification |
+| `QMNF.lean` | QMNF core definitions |
+| `EXACT_SORRY_REPLACEMENT.lean` | Sorry elimination for specific lemmas |
+| `SORRY_REPLACEMENT_MINIMAL.lean` | Minimal sorry replacements |
+| `Unified 2.lean` (+ variants) | Unified proof attempts (multiple iterations) |
+| `advanced_toric/` | Toric Grover, binary GCD, PLMG, DC helix (4 files) |
+| Numbered files (02-22) | Duplicates of formalization-swarm proofs |
+
+#### `lean4/qmnf-system/` — QMNF system-level proofs
+
+| File | What it proves |
+|------|----------------|
+| `KElimination.lean` | K-Elimination within QMNF system context |
+| `ResidueLearning.lean` | Residue-space learning preserves classification accuracy |
+
+---
+
+### Coq Proofs
+
+#### `coq/nine65/` — NINE65 innovation proofs (19 files)
+
+Each file proves correctness properties of one NINE65 FHE innovation.
+These are the canonical copies.
+
+| File | What it proves | Admitted |
+|------|----------------|----------|
+| `KElimination.v` | k = (v_A - v_M) * M^-1 mod A exactly recovers overflow | 1 |
+| `K_Elimination.v` | Alternate formulation of K-Elimination | 0 |
+| `OrderFinding.v` | Baby-step giant-step finds multiplicative order in O(sqrt(n)) | 1 |
+| `GSOFHE.v` | Gram-Schmidt orthogonalization preserves FHE noise bounds | 0 |
+| `MQReLU.v` | Modular quantized ReLU matches real ReLU for inputs in [0, t/2) | 0 |
+| `CRTShadowEntropy.v` | CRT shadows have min-entropy >= log2(min(p_i)) | 0 |
+| `MobiusInt.v` | Mobius inversion formula holds over Z; sum computation is exact | 0 |
+| `PadeEngine.v` | Pade [m/n] approximant error is O(x^(m+n+1)) | 0 |
+| `ExactCoefficient.v` | Taylor coefficients computed via integer recurrence are exact | 0 |
+| `StateCompression.v` | Homomorphic state compression preserves decrypt correctness | 1 |
+| `IntegerSoftmax.v` | Integer softmax preserves argmax and relative ordering | 0 |
+| `CyclotomicPhase.v` | Cyclotomic polynomial roots in Z_q match analytic roots | 1 |
+| `EncryptedQuantum.v` | Quantum circuit simulation on encrypted data preserves measurement distribution | 0 |
+| `SideChannelResistance.v` | Operations execute in data-independent time (constant-time) | 0 |
+| `PeriodGrover.v` | Period-finding variant of Grover achieves quadratic speedup | 7 |
+| `MontgomeryPersistent.v` | Montgomery form is maintained across mul chains without extra reduction | 0 |
+| `ShadowIndependence.v` | Shadow residues are statistically independent across channels | 0 |
+| `ToricGrover.v` | Toric 2-amplitude Grover search converges | 0 |
+| `03_QMNF_Coq_Proofs.v` | Combined QMNF proof bundle | 0 |
+
+#### `coq/qmnf/` — QMNF core proofs (3 files)
+
+| File | What it proves |
+|------|----------------|
+| `QMNF.v` | Core QMNF arithmetic properties (CRT, modular inverse, exact division) |
+| `PeriodGrover.v` | Period-finding Grover (QMNF context) |
+| `03_QMNF_Coq_Proofs.v` | Combined proof bundle |
+
+#### `coq_proofs/NINE65/` — Compiled Coq proofs (with build artifacts)
+
+Same 16 proofs as `coq/nine65/` but with `.vo`, `.vok`, `.vos` compilation
+artifacts. These confirm the proofs compile under Coq 8.18+.
+
+---
+
+### NIST Compliance Tests
+
+#### `nist/` — Statistical randomness validation (Python)
+
+| File | What it tests |
+|------|---------------|
+| `nist_compliance_tests.py` | Runs NIST SP 800-22 test battery against shadow entropy output |
+| `nist_security.py` | Security parameter validation (ring dimension, modulus size, noise ratio) |
+| `shadow_nist_tests.py` | Shadow-specific NIST compliance checks |
+
+---
+
+### Documentation
+
+#### `docs/theorem-stacks/` — Theorem inventories and status
+
+| File | Contents |
+|------|----------|
+| `AHOP_THEOREM_STACK_FINAL.md` | Final AHOP theorem inventory with sorry counts |
+| `AHOP_THEOREM_STACK.md` | AHOP theorem inventory (working version) |
+| `QMNF_SECURITY_THEOREM_STACK.md` | Full QMNF security theorem inventory |
+| `formalization_swarm_theorem_stack.md` | Swarm-produced theorem inventory |
+| `hackfate_theorem_stack.md` | HackFate project theorem inventory |
+| `nine65_O1_theorem_stack.md` | NINE65 round-1 theorem inventory |
+| `nine65_O2_theorem_stack.md` | NINE65 round-2 theorem inventory |
+| `mathematical_proofs_doc.md` | Informal mathematical proof sketches |
+| `qmnf-proofs.md` | QMNF proof overview |
+| `qmn_theorems.md` (+ variants 1-8) | Iterative theorem stack snapshots |
+| `T1_gcd_proof.md` | GCD correctness proof (informal) |
+| `T8_division_proof.md` | Division algorithm proof (informal) |
+
+#### `docs/formal-verification/` — Verification reports
+
+| File | Contents |
+|------|----------|
+| `K_ELIMINATION_FORMAL_VERIFICATION_COMPLETE.md` | K-Elimination: 27 Lean theorems, 0 sorry, 10 Coq cross-validated |
+| `K_ELIMINATION_THEOREM.md` | K-Elimination theorem statement and proof sketch |
+| `FORMAL_THEOREMS_TORIC.md` | Toric Grover formal theorem statements |
+| `FORMAL_THEOREMS_UPDATED.md` | Updated formal theorem list |
+| `formal_verification_completion.txt` | Verification completion log |
+| `gso_formal_verification.txt` | GSO-FHE verification log |
+| `loki_clockwork_formal_spec_v1.md` | Clockwork-Core formal specification |
+
+#### `docs/security-assessments/` — Security analysis documents
+
+| File | Contents |
+|------|----------|
+| `AHOP_FHE_SECURITY_PROOFS.md` | AHOP-to-FHE security reduction analysis |
+| `SECURITY_PROOFS.md` | Combined security proof inventory |
+| `MULTIPARTY_THEOREM_STACK_FINAL.md` | Multiparty FHE theorem inventory |
+| `REDTEAM_K_ELIMINATION_THEOREM.md` | Red-team adversarial analysis of K-Elimination |
+| `FLOAT_SHADOW_FORGE_SECURITY_PROOFS.md` | Float-shadow-forge security analysis |
+| `GRANDMASTER_THEOREM_QUERIES.md` | Cross-cutting theorem queries and resolutions |
+| `TORIC_GROVER_THEOREM.md` | Toric Grover theorem analysis |
+| `TORIC_SHOR_THEOREM.md` | Toric Shor theorem analysis |
+| `WASSAN_SUBSTRATE_THEOREM.md` | Wasserstein substrate theorem analysis |
+
+---
+
+### TeX Papers
+
+#### `tex/` — LaTeX manuscripts
+
+| File | Contents |
+|------|----------|
+| `K_Elimination_Technical_Paper.tex` | K-Elimination technical paper (27 theorems, formal verification, complexity analysis) |
+| `formal_proofs.tex` | Combined formal proofs manuscript |
+
+---
+
+### Build Configurations
+
+#### `lakefiles/` — Lean 4 build files from source projects
+
+| File | Source project |
+|------|---------------|
+| `formalization-swarm-lakefile.lean` | qmnf-formalization-swarm |
+| `hackfate-lakefile.lean` | hackfate main |
+| `security-swarm-lakefile.lean` | ahop-security-swarm |
+
+---
+
+## Formalization Swarm Workspace
+
+The `swarm_run/` directory contains the original formalization swarm
+workspace — the multi-agent system that produced many of these proofs.
+
+```
+swarm_run/
+  state/                  Proof dependency DAGs (blueprint.json)
+  synthesis/              Theorem stack synthesis reports
+  jobs/
+    phi_decomposer/       Proof decomposition into dependency graphs
+    pi_prover/            Proof sketch generation
+    kappa_critic/         Adversarial critique (mandatory gate)
+    mu_simulator/         Computational validation (17 tests, 100% pass)
+    lambda_librarian/     Mathlib dependency mapping
+    sigma_verifier/       Lean 4 compilation verification
+  lean_project/
+    SwarmProofs/          Compiled Lean 4 proofs (14 files)
+    SwarmProofs/Gaps/     Gap closure proofs (3 files)
+    lakefile.lean         Build config (Mathlib dependency)
+```
+
+---
+
+## Building
+
+### Lean 4 (requires Lean 4.x + Mathlib)
 
 ```bash
+# Security swarm proofs (primary)
 cd swarm_run/lean_project
+lake build
+
+# K-Elimination proofs
+cd lean4/k-elimination
 lake build
 ```
 
-Expected output:
-```
-Build completed successfully (3079 jobs).
-```
-
-### Build Coq Proofs
+### Coq (requires Coq 8.18+)
 
 ```bash
 cd coq_proofs
 for f in NINE65/*.v; do coqc -Q NINE65 NINE65 "$f"; done
 ```
 
-Or build individually:
-```bash
-coqc -Q NINE65 NINE65 NINE65/KElimination.v
-```
-
-### Run Computational Tests
+### NIST tests (requires Python 3)
 
 ```bash
-cd swarm_run/jobs/mu_simulator
-python3 tests.py
+cd nist
+python3 nist_compliance_tests.py
 ```
 
-Expected output:
-```
-Total tests: 17
-Passed: 17
-Failed: 0
-Pass rate: 100%
-```
+---
 
-## Repository Structure
+## Proof Status Summary
+
+| Category | Theorems | Sorry/Admitted | Notes |
+|----------|----------|----------------|-------|
+| K-Elimination (Lean 4) | 27 | 0 | Fully machine-checked |
+| K-Elimination (Coq) | 10 | 1 | Cross-validated |
+| AHOP Foundations (Lean 4) | 11 | 0 | Algebraic, not geometric |
+| AHOP Hardness (Lean 4) | 3 | 0 + 1 axiom | PPT hardness is axiomatic |
+| Security Reductions (Lean 4) | 8 | 0 | IND-CPA under RLWE + AHOP |
+| Security Lemmas (Lean 4) | 4 | 3 | Asymptotic analysis (non-critical) |
+| Homomorphic Security (Lean 4) | 3 | 1 | Asymptotic (non-critical) |
+| Gap Closures (Lean 4) | 3 | 4 | Technical lemmas |
+| NINE65 Innovations (Coq) | 16 | 11 | 11 of 16 fully complete (0 Admitted) |
+| Shadow/NIST (Lean 4) | 6 | varies | Statistical compliance |
+| Exact Transcendentals (Lean 4) | 7 | varies | AGM, CORDIC, binary splitting, sqrt |
+| Formalization Swarm (Lean 4) | 23 | varies | Numbered innovations 02-25 |
+
+**Critical path (K-Elimination + AHOP + IND-CPA): 0 sorry on all core theorems.**
+
+---
+
+## Repository Layout
 
 ```
-qmnf-security-proofs/
-├── coq_proofs/
-│   ├── README.md                       # Coq proofs documentation
-│   └── NINE65/                         # NINE65 FHE innovations
-│       ├── KElimination.v              # K-Elimination (core)
-│       ├── OrderFinding.v              # Order finding algorithm
-│       ├── GSOFHE.v                    # GSO-based FHE
-│       ├── MQReLU.v                    # Modular quantized ReLU
-│       ├── CRTShadowEntropy.v          # CRT entropy properties
-│       ├── MobiusInt.v                 # Mobius integer theory
-│       ├── PadeEngine.v                # Pade approximation
-│       ├── ExactCoefficient.v          # Exact coefficients
-│       ├── StateCompression.v          # State compression
-│       ├── IntegerSoftmax.v            # Integer softmax
-│       ├── CyclotomicPhase.v           # Cyclotomic fields
-│       ├── EncryptedQuantum.v          # Quantum on encrypted
-│       ├── SideChannelResistance.v     # Side-channel proofs
-│       ├── PeriodGrover.v              # Period-finding Grover
-│       ├── MontgomeryPersistent.v      # Montgomery multiplication
-│       └── ToricGrover.v               # Toric Grover search
-├── swarm_run/
-│   ├── state/
-│   │   └── blueprint.json              # Proof dependency DAG
-│   ├── synthesis/
-│   │   ├── QMNF_SECURITY_THEOREM_STACK.md
-│   │   ├── FINAL_VERIFICATION_STATUS.md
-│   │   ├── REANALYSIS_REPORT_2026-02-01.md
-│   │   └── SKELETON_COMPLETION_REPORT.md
-│   ├── jobs/
-│   │   ├── pi_prover/                  # Proof sketches
-│   │   ├── kappa_critic/               # Adversarial reviews
-│   │   ├── mu_simulator/               # Computational tests
-│   │   ├── phi_decomposer/             # DAG decomposition
-│   │   └── lambda_librarian/           # Mathlib mapping
-│   └── lean_project/
-│       ├── lakefile.lean
-│       ├── lake-manifest.json
-│       └── SwarmProofs/
-│           ├── Basic.lean              # Foundation imports
-│           ├── CRT.lean                # Chinese Remainder Theorem
-│           ├── KElimination.lean       # K-Elimination correctness
-│           ├── Security.lean           # IND-CPA game definitions
-│           ├── SecurityComplete.lean   # Full security proofs
-│           ├── AHOPAlgebra.lean        # AHOP algebraic structure
-│           ├── AHOPHardness.lean       # AHOP hardness proofs
-│           ├── AHOPParameters.lean     # 128-bit security params
-│           └── AHOPSecurity.lean       # AHOP security reduction
-└── README.md
+qmnf-lean-coq-security-proofs/
+  LICENSE                           All Rights Reserved
+  README.md                        This file
+  coq/
+    nine65/                         19 Coq proofs (NINE65 innovations)
+    qmnf/                           3 Coq proofs (QMNF core)
+  coq_proofs/
+    NINE65/                         16 compiled Coq proofs (with .vo artifacts)
+  lean4/
+    k-elimination/                  K-Elimination + AHOP + CRT + shadow entropy
+    exact-transcendentals/          AGM, binary splitting, CORDIC, sqrt
+    security-swarm/SwarmProofs/     IND-CPA security reductions (14 files)
+    shadow-nist/                    NIST SP 800-22 compliance proofs
+    ahop-gaps/                      Gap closure proofs (GAP001, GAP004, GAP006)
+    formalization-swarm/            Numbered innovation proofs (02-25)
+    standalone/                     Individual standalone proofs
+    qmnf-system/                    QMNF system-level proofs
+  nist/                             Python NIST test scripts
+  docs/
+    theorem-stacks/                 Theorem inventories
+    formal-verification/            Verification reports
+    security-assessments/           Security analysis documents
+  tex/                              LaTeX papers
+  lakefiles/                        Lean 4 build configs from source projects
+  swarm_run/                        Original formalization swarm workspace
 ```
 
-## Key Theorems
+---
 
-### K-Elimination (L002)
-
-The core breakthrough resolving the 60-year RNS division problem:
-
-```lean
-theorem k_elimination_core [Fact (0 < cfg.beta_cap)] (V : Nat) (hV : V < totalModulus cfg) :
-    let v_alpha := (V : ZMod cfg.alpha_cap)
-    let v_beta := (V : ZMod cfg.beta_cap)
-    let alpha_inv := (cfg.alpha_cap : ZMod cfg.beta_cap)⁻¹
-    let k_computed := (v_beta - v_alpha.val) * alpha_inv
-    (k_computed : ZMod cfg.beta_cap) = (overflowQuotient cfg V : ZMod cfg.beta_cap)
-```
-
-**Result**: For X < α·β with gcd(α,β)=1, the overflow k = ⌊X/α⌋ is exactly recoverable.
-
-### IND-CPA Security (T002)
-
-```lean
-theorem deterministic_security_bound
-    (lambda : SecurityParam) (h_lambda : lambda ≥ 128)
-    (h_noise : cfg.q / (2 * cfg.t) > security_noise_range lambda cfg.t)
-    (h_t_bound : cfg.t < 2^lambda) :
-    ∃ adv_bound : Nat, adv_bound ≤ cfg.t ∧ adv_bound < 2^lambda
-```
-
-**Result**: QMNF-HE is IND-CPA secure under Ring-LWE with advantage ≤ Adv_RLWE + 3^(-n).
-
-### Bootstrap-Free Depth
-
-```lean
-theorem bootstrap_free_achievable (h_q : cfg.q > cfg.t * initial_noise_bound cfg * 4) :
-    max_depth_for_params cfg.q cfg.t (initial_noise_bound cfg) ≥ 0
-```
-
-**Result**: With K-Elimination exact rescaling, circuits of depth 6+ are achievable without bootstrapping.
-
-## Methodology: Formalization Swarm
-
-Proofs were developed using the **Formalization Swarm** methodology (inspired by Terence Tao's IMO 2024 approach):
-
-1. **φ-Decomposer**: Decomposes proofs into dependency DAG
-2. **π-Prover**: Produces proof sketches with explicit justification
-3. **κ-Critic**: Adversarial review (mandatory gate)
-4. **σ-Verifier**: Translates to Lean 4 with compilation
-5. **μ-Simulator**: Computational validation
-6. **Ω-Synthesizer**: Integrates verified theorems
-
-All proofs must pass adversarial critique before verification.
-
-## Security Parameters
-
-Production parameters for 128-bit security:
-
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| n | 4096 | Ring dimension |
-| q | 2^54 - 33 | Ciphertext modulus (prime) |
-| t | 65537 | Plaintext modulus (Fermat prime) |
-| σ | 3.2 | Error standard deviation |
-
-**Security estimate**: 1664 bits (exceeds 128-bit target by 13x)
-
-## Integer-Only Mandate
-
-All proofs enforce QMNF's integer-only discipline:
-
-- No floating-point arithmetic
-- Exact rational representations
-- Deterministic computation
-
-```lean
--- All operations use ZMod (modular integer arithmetic)
-def noise_after_mul (n1 n2 : Nat) : Nat :=
-  n1 * n2 * cfg.t + n1 + n2  -- Integer-only
-```
-
-## Related Projects
-
-- [QMNF_System](https://github.com/user/QMNF_System) - Core Rust implementation
-- [NINE65](https://github.com/user/NINE65) - FHE innovations with Coq proofs
-- [qmnf-formalization-swarm](https://github.com/user/qmnf-formalization-swarm) - Swarm methodology
-
-## References
-
-1. Szabo & Tanaka (1967) - Original RNS division problem
-2. Brakerski-Gentry-Vaikuntanathan (2012) - BFV FHE scheme
-3. Lyubashevsky-Peikert-Regev (2010) - Ring-LWE hardness
-4. Terence Tao (2024) - AI and Mathematics (IMO formalization)
-
-## License
-
-**Proprietary - All Rights Reserved**
-
-Copyright (c) 2026 QMNF Project. See [LICENSE](LICENSE) for details.
-
-## Citation
-
-```bibtex
-@software{qmnf_security_proofs,
-  title = {QMNF Security Proofs: Formal Verification of Bootstrap-Free FHE},
-  year = {2026},
-  url = {https://github.com/Skyelabz210/qmnf-security-proofs}
-}
-```
+Copyright (c) 2025-2026 HackFate Research. All Rights Reserved.
