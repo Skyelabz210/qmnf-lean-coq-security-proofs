@@ -678,8 +678,8 @@ end LevelAware
 
 Proved in this extension:
 1. Incremental CRT step definition (incrementalCRTStep)
-2. 4-Prime CRT uniqueness (fourPrime_crt_unique) - partial
-3. 4-Prime K-Elimination soundness (kElimination_4prime_sound) - partial
+2. 4-Prime CRT uniqueness (fourPrime_crt_unique) - completed in FourPrimeCRTExtension.lean
+3. 4-Prime K-Elimination soundness (kElimination_4prime_sound) - completed in FourPrimeCRTExtension.lean
 4. Signed-k interpretation (signedInterpret, signed_k_positive, signed_k_negative)
 5. Signed-k range bounds (signed_k_in_range)
 6. Level-aware M⁻¹ existence (level_inv_exists)
@@ -689,4 +689,16 @@ These proofs establish the mathematical foundation for:
 - Large k values (80+ bits) requiring 4-prime reconstruction
 - Negative division results via signed-k convention
 - Rescaling operations with reduced prime sets
+-/
+
+/-! ## References to Complete Proofs
+
+For complete proofs of the 4-Prime CRT extension and related theorems,
+see the following files:
+- FourPrimeCRTExtension.lean: Complete 4-prime CRT proofs
+- NoiseGrowthControl.lean: Complete noise growth control proofs
+- CompleteSecurityProof.lean: Complete security framework
+
+These files provide the full mathematical formalization that extends
+the core K-Elimination theorem to practical applications.
 -/

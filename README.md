@@ -48,6 +48,9 @@ recovers the overflow count exactly for X < M*A.
 | `KElimination/AHOP/Algebra.lean` | Apollonian reflection is an involution; Descartes form is algebraically invariant |
 | `KElimination/AHOP/Hardness.lean` | Orbit cardinality grows as 4^L (exponential lower bound) |
 | `KElimination/AHOP/Parameters.lean` | Concrete parameter instantiation for 128-bit security level |
+| `NoiseGrowthControl.lean` | Complete proof of noise growth control for bootstrap-free FHE |
+| `FourPrimeCRTExtension.lean` | Complete 4-prime CRT extension for large k values (80+ bits) |
+| `CompleteSecurityProof.lean` | Complete IND-CPA security framework |
 | `lakefile.lean` | Build configuration |
 
 #### `lean4/exact-transcendentals/` — Exact transcendental function proofs
