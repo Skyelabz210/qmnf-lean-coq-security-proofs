@@ -55,6 +55,7 @@ recovers the overflow count exactly for X < M*A.
 | `CompleteHomomorphicSecurity.lean` | Complete framework for homomorphic security proofs |
 | `AHOPSecurityReductions.lean` | Complete framework for AHOP-based security reductions |
 | `PersistentMontgomery.lean` | Formal verification of persistent Montgomery arithmetic |
+| `IntegerNN.lean` | Formal verification of integer neural network components |
 | `lakefile.lean` | Build configuration |
 
 #### `lean4/exact-transcendentals/` — Exact transcendental function proofs

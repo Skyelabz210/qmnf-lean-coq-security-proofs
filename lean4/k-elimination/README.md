@@ -27,6 +27,7 @@ This enables exact k recovery without floating-point approximation, solving a 60
 - `CompleteHomomorphicSecurity.lean`: Complete framework for homomorphic security proofs
 - `AHOPSecurityReductions.lean`: Complete framework for AHOP-based security reductions
 - `PersistentMontgomery.lean`: Formal verification of persistent Montgomery arithmetic
+- `IntegerNN.lean`: Formal verification of integer neural network components
 - `lakefile.lean`: Build configuration
 
 ## Key Innovations Proven
