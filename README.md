@@ -53,6 +53,7 @@ recovers the overflow count exactly for X < M*A.
 | `CompleteSecurityProof.lean` | Complete IND-CPA security framework |
 | `HomomorphicSecurity.lean` | Proofs for homomorphic operations preserving security |
 | `CompleteHomomorphicSecurity.lean` | Complete framework for homomorphic security proofs |
+| `AHOPSecurityReductions.lean` | Complete framework for AHOP-based security reductions |
 | `lakefile.lean` | Build configuration |
 
 #### `lean4/exact-transcendentals/` — Exact transcendental function proofs

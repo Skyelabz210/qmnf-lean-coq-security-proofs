@@ -25,6 +25,7 @@ This enables exact k recovery without floating-point approximation, solving a 60
 - `CompleteSecurityProof.lean`: Complete IND-CPA security framework
 - `HomomorphicSecurity.lean`: Proofs for homomorphic operations preserving security
 - `CompleteHomomorphicSecurity.lean`: Complete framework for homomorphic security proofs
+- `AHOPSecurityReductions.lean`: Complete framework for AHOP-based security reductions
 - `lakefile.lean`: Build configuration
 
 ## Key Innovations Proven
