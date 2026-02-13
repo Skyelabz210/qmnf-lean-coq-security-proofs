@@ -23,6 +23,7 @@ This enables exact k recovery without floating-point approximation, solving a 60
 - `NoiseGrowthControl.lean`: Complete proof of noise growth control for bootstrap-free FHE
 - `FourPrimeCRTExtension.lean`: Complete 4-prime CRT extension for large k values
 - `CompleteSecurityProof.lean`: Complete IND-CPA security framework
+- `HomomorphicSecurity.lean`: Proofs for homomorphic operations preserving security
 - `lakefile.lean`: Build configuration
 
 ## Key Innovations Proven
