@@ -52,6 +52,7 @@ recovers the overflow count exactly for X < M*A.
 | `FourPrimeCRTExtension.lean` | Complete 4-prime CRT extension for large k values (80+ bits) |
 | `CompleteSecurityProof.lean` | Complete IND-CPA security framework |
 | `HomomorphicSecurity.lean` | Proofs for homomorphic operations preserving security |
+| `CompleteHomomorphicSecurity.lean` | Complete framework for homomorphic security proofs |
 | `lakefile.lean` | Build configuration |
 
 #### `lean4/exact-transcendentals/` — Exact transcendental function proofs

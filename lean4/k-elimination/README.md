@@ -24,6 +24,7 @@ This enables exact k recovery without floating-point approximation, solving a 60
 - `FourPrimeCRTExtension.lean`: Complete 4-prime CRT extension for large k values
 - `CompleteSecurityProof.lean`: Complete IND-CPA security framework
 - `HomomorphicSecurity.lean`: Proofs for homomorphic operations preserving security
+- `CompleteHomomorphicSecurity.lean`: Complete framework for homomorphic security proofs
 - `lakefile.lean`: Build configuration
 
 ## Key Innovations Proven
